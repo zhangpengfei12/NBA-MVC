@@ -17,5 +17,6 @@
         </activity>
         <activity android:name=".NbaActivity"/>
     </application>
+    <uses-permission   android:name ="android.permission.INTERNET"  />
 
 </manifest>
