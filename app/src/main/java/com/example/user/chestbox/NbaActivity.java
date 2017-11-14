@@ -38,8 +38,9 @@ import java.util.Map;
 public class NbaActivity extends Activity {
     private ListView listView;
     private SimpleAdapter adapter;
-    private List<Map<String,Object>> matchList;
+    private List<Map<String, Object>> matchList;
     private TextView publishText;
+    private List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,28 +49,27 @@ public class NbaActivity extends Activity {
         setContentView(R.layout.nba_match_layout);
 
         queryMatchList();
-        publishText = (TextView)findViewById(R.id.error_msg);
-
+        publishText = (TextView) findViewById(R.id.error_msg);
 
 
     }
 
-    public void showMatch(){
-        adapter = new SimpleAdapter(this,matchList, R.layout.match_detail,
-                new String[]{"player1","player1logobig","score","player2logobig","player2"},
-                new int[]{R.id.team1_name,R.id.team1_logo,R.id.match_point,R.id.team2_logo,R.id.team2_name});
-        listView = (ListView)findViewById(R.id.match_list);
+    public void showMatch() {
+        adapter = new SimpleAdapter(this, matchList, R.layout.match_detail,
+                new String[]{"player1", "player1logobig", "score", "player2logobig", "player2", "status"},
+                new int[]{R.id.team1_name, R.id.team1_logo, R.id.match_point, R.id.team2_logo, R.id.team2_name, R.id.status});
+        listView = (ListView) findViewById(R.id.match_list);
         adapter.setViewBinder(new SimpleAdapter.ViewBinder() {
 
             public boolean setViewValue(View view, Object data,
                                         String textRepresentation) {
-                //判断是否为我们要处理的对象
-                if(view instanceof ImageView && data instanceof Bitmap){
+                //判断是否为网络图片
+                if (view instanceof ImageView && data instanceof Bitmap) {
                     ImageView iv = (ImageView) view;
 
                     iv.setImageBitmap((Bitmap) data);
                     return true;
-                }else
+                } else
                     return false;
             }
         });
@@ -77,7 +77,7 @@ public class NbaActivity extends Activity {
         publishText.setVisibility(View.GONE);
     }
 
-    public Bitmap getNetPicture(String url){
+    public Bitmap getNetPicture(String url) {
 
         URL myFileUrl = null;
         Bitmap bitmap = null;
@@ -99,8 +99,8 @@ public class NbaActivity extends Activity {
         return bitmap;
     }
 
-    public void queryMatchList(){
-        new Thread(new Runnable(){
+    public void queryMatchList() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 // TODO
@@ -109,40 +109,20 @@ public class NbaActivity extends Activity {
                 postDownloadJson(address, new HttpCallbackListener() {
                     @Override
                     public void onFinish(String response) {
-                        List<Map<String,Object>> list = new ArrayList<Map<String, Object>>();
 
                         try {
                             JSONArray jsonArray = null;
-                            JSONObject jsonAll = new  JSONObject();
+                            JSONObject jsonAll = new JSONObject();
                             jsonAll = new JSONObject(response);
                             String jsonMatch = jsonAll.getJSONObject("result").getString("list");
-                            String jsonMatch2 = jsonMatch.substring(1,jsonMatch.length()-1);
-                            String jsonMatch3 = new JSONObject(jsonMatch2).getString("tr");
-                            String jsonMatch4 = jsonMatch3.substring(1,jsonMatch3.length()-1);
-                            jsonArray = new JSONArray(jsonMatch3);
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                                // 初始化map数组对象
-                                Map<String, Object> map = new HashMap<String, Object>();
-                                //map.put("title", jsonObject.getString("title"));
-                                map.put("player1", jsonObject.getString("player1"));
-                                map.put("player2", jsonObject.getString("player2"));
-                                map.put("player1logobig", getNetPicture(jsonObject.getString("player1logo")));
-                                map.put("player2logobig", getNetPicture(jsonObject.getString("player2logo")));
-                                map.put("score", jsonObject.getString("score"));
-                                list.add(map);
-                            }
+                            JSONArray threeday = new JSONArray(jsonMatch);
+
+                            queryOnedayMatch(threeday, 1);
+
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        matchList = list;
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
 
-                                showMatch();
-                            }
-                        });
                     }
 
                     @Override
@@ -161,10 +141,52 @@ public class NbaActivity extends Activity {
 
     }
 
-    public static void postDownloadJson(final String address,final HttpCallbackListener listener) {
-        new Thread(new Runnable(){
+    public void queryOnedayMatch(JSONArray threeday, int k) {
+        try {
+            list.clear();
+            String date = threeday.getJSONObject(k).getString("title");
+            JSONArray jsonArray = new JSONArray(threeday.getJSONObject(k).getString("tr"));
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                // 初始化map数组对象
+                Map<String, Object> map = new HashMap<String, Object>();
+                //map.put("title", jsonObject.getString("title"));
+                map.put("player1", jsonObject.getString("player1"));
+                map.put("player2", jsonObject.getString("player2"));
+                map.put("player1logobig", getNetPicture(jsonObject.getString("player1logo")));
+                map.put("player2logobig", getNetPicture(jsonObject.getString("player2logo")));
+                map.put("score", jsonObject.getString("score"));
+                String status2 = jsonObject.getString("status");
+                if (status2 != null) {
+                    if (status2 == "1") {
+                        status2 = "进行中";
+                    } else if (status2 == "2") {
+                        status2 = "已结束";
+                    } else
+                        status2 = "未开始";
+                }
+                map.put("status", status2);
+                list.add(map);
+            }
+            matchList = list;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        runOnUiThread(new Runnable() {
             @Override
-            public void run(){
+            public void run() {
+
+                showMatch();
+            }
+        });
+
+    }
+
+    public static void postDownloadJson(final String address, final HttpCallbackListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
                 HttpURLConnection connection = null;
                 try {
                     URL url = new URL(address);
@@ -179,15 +201,15 @@ public class NbaActivity extends Activity {
                     while ((line = reader.readLine()) != null) {
                         response.append(line);
                     }
-                    if(listener != null){
+                    if (listener != null) {
                         listener.onFinish(response.toString());
                     }
-                }catch (Exception e){
-                    if(listener != null){
+                } catch (Exception e) {
+                    if (listener != null) {
                         listener.onError(e);
                     }
-                }finally {
-                    if(connection != null){
+                } finally {
+                    if (connection != null) {
                         connection.disconnect();
                     }
                 }
