@@ -15,25 +15,25 @@
             android:id="@+id/yesterday"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:background="@null"
+            android:background="#EBEBEB"
             android:layout_weight="1"
-            android:textColor="#D4D4D4"/>
+            android:textColor="#ff888888"/>
 
         <Button
             android:id="@+id/today"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:background="@null"
+            android:background="#EBEBEB"
             android:layout_weight="1"
-            android:textColor="#D4D4D4"/>
+            android:textColor="#ff888888"/>
 
         <Button
             android:id="@+id/tomorrow"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:background="@null"
+            android:background="#EBEBEB"
             android:layout_weight="1"
-            android:textColor="#D4D4D4"/>
+            android:textColor="#ff888888"/>
     </LinearLayout>
     <ListView
         android:id="@+id/match_list"

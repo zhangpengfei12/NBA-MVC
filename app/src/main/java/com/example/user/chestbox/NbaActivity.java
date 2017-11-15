@@ -1,8 +1,10 @@
 package com.example.user.chestbox;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -46,6 +48,7 @@ public class NbaActivity extends Activity {
     private Button today;
     private Button yesterday;
     private Button tomorrow;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,13 +56,19 @@ public class NbaActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.nba_match_layout);
 
+        today = (Button)findViewById(R.id.today);
+        today.setTextColor(Color.BLACK);
         queryMatchList(1);
         publishText = (TextView) findViewById(R.id.error_msg);
 
-        today = (Button)findViewById(R.id.today);
+
         today.setOnClickListener(new View.OnClickListener() {
             @Override
             public  void onClick(View v) {
+                today.setTextColor(Color.BLACK);
+                yesterday.setTextColor(Color.GRAY);
+                tomorrow.setTextColor(Color.GRAY);
+                showProgressDialog();
                 queryMatchList(1);
             }
         });
@@ -68,7 +77,12 @@ public class NbaActivity extends Activity {
         yesterday.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                today.setTextColor(Color.GRAY);
+                yesterday.setTextColor(Color.BLACK);
+                tomorrow.setTextColor(Color.GRAY);
+                showProgressDialog();
                 queryMatchList(0);
+
             }
         });
 
@@ -76,6 +90,10 @@ public class NbaActivity extends Activity {
         tomorrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                today.setTextColor(Color.GRAY);
+                yesterday.setTextColor(Color.GRAY);
+                tomorrow.setTextColor(Color.BLACK);
+                showProgressDialog();
                 queryMatchList(2);
             }
         });
@@ -221,6 +239,7 @@ public class NbaActivity extends Activity {
                 today.setText(date[1]);
                 tomorrow.setText(date[2]);
                 showMatch();
+                closeProgressDialog();
             }
         });
 
@@ -259,6 +278,22 @@ public class NbaActivity extends Activity {
             }
         }).start();
 
+    }
+    //显示进度对话框
+    private void showProgressDialog(){
+        if(progressDialog == null){
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("正在加载...");
+            progressDialog.setCanceledOnTouchOutside(false);
+        }
+        progressDialog.show();
+    }
+
+    //关闭对话框
+    private  void closeProgressDialog(){
+        if(progressDialog != null){
+            progressDialog.dismiss();
+        }
     }
 }
 
