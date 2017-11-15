@@ -12,28 +12,28 @@
         android:background="#EAEAEA">
 
         <Button
+            android:id="@+id/yesterday"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="@null"
             android:layout_weight="1"
-            android:text="11-09 周四"
-            android:textColor="@drawable/date_color"/>
+            android:textColor="#D4D4D4"/>
 
         <Button
+            android:id="@+id/today"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="@null"
             android:layout_weight="1"
-            android:text="11-09 周四"
-            android:textColor="@drawable/date_color"/>
+            android:textColor="#D4D4D4"/>
 
         <Button
+            android:id="@+id/tomorrow"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="@null"
             android:layout_weight="1"
-            android:text="11-09 周四"
-            android:textColor="@drawable/date_color"/>
+            android:textColor="#D4D4D4"/>
     </LinearLayout>
     <ListView
         android:id="@+id/match_list"

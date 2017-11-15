@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,6 +43,9 @@ public class NbaActivity extends Activity {
     private List<Map<String, Object>> matchList;
     private TextView publishText;
     private List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+    private Button today;
+    private Button yesterday;
+    private Button tomorrow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +53,34 @@ public class NbaActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.nba_match_layout);
 
-        queryMatchList();
+        queryMatchList(1);
         publishText = (TextView) findViewById(R.id.error_msg);
+
+        today = (Button)findViewById(R.id.today);
+        today.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public  void onClick(View v) {
+                queryMatchList(1);
+            }
+        });
+
+        yesterday = (Button)findViewById(R.id.yesterday);
+        yesterday.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                queryMatchList(0);
+            }
+        });
+
+        tomorrow = (Button)findViewById(R.id.tomorrow);
+        tomorrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                queryMatchList(2);
+            }
+        });
+
+
 
 
     }
@@ -99,7 +130,7 @@ public class NbaActivity extends Activity {
         return bitmap;
     }
 
-    public void queryMatchList() {
+    public void queryMatchList(final int m) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -117,7 +148,12 @@ public class NbaActivity extends Activity {
                             String jsonMatch = jsonAll.getJSONObject("result").getString("list");
                             JSONArray threeday = new JSONArray(jsonMatch);
 
-                            queryOnedayMatch(threeday, 1);
+                            if(m == 0 || m == 2){
+                                queryOnedayMatch(threeday, m);
+                            }else{
+                                queryOnedayMatch(threeday, 1);
+                            }
+
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -142,10 +178,15 @@ public class NbaActivity extends Activity {
     }
 
     public void queryOnedayMatch(JSONArray threeday, int k) {
+        final String[] date = new String[]{"1","2","3"};
         try {
             list.clear();
-            String date = threeday.getJSONObject(k).getString("title");
             JSONArray jsonArray = new JSONArray(threeday.getJSONObject(k).getString("tr"));
+
+            for (int i = 0;i<threeday.length();i++){
+                JSONObject jsonObject = threeday.getJSONObject(i);
+                date[i] = jsonObject.getString("title");
+            }
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 // 初始化map数组对象
@@ -176,7 +217,9 @@ public class NbaActivity extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
+                yesterday.setText(date[0]);
+                today.setText(date[1]);
+                tomorrow.setText(date[2]);
                 showMatch();
             }
         });
