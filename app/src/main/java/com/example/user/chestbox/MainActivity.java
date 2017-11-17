@@ -47,11 +47,11 @@ public class MainActivity extends Activity {
                     case 0:
                         Intent intent = new Intent(MainActivity.this,NbaActivity.class);
                         startActivity(intent);
-                        Toast.makeText(MainActivity.this,"NBA",Toast.LENGTH_SHORT).show();
                         break;
 
                     case 1:
-                        Toast.makeText(MainActivity.this,"尚未实现，没有接口",Toast.LENGTH_SHORT).show();
+                        Intent zhihu_intent = new Intent(MainActivity.this,ZhihuActivity.class);
+                        startActivity(zhihu_intent);
                         break;
 
                     case 2:
@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
         list.add(map);
 
         map = new HashMap<String, Object>();
-        map.put("title","知乎");
+        map.put("title","知乎日报");
         map.put("introduction","与世界分享你的知识、经验和见解");
         map.put("logo",R.drawable.zhihu_logo);
         list.add(map);

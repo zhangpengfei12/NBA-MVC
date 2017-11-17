@@ -16,6 +16,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".NbaActivity"/>
+        <activity android:name=".ZhihuActivity"/>
     </application>
     <uses-permission   android:name ="android.permission.INTERNET"  />
 
